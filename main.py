@@ -25,11 +25,11 @@ def high_freq_flashing(strip, color, duration):
   for d in range(duration):
     for i in range(strip.numPixels()):
       strip.setPixelColor(i, color)
-      strip.show()
+    strip.show()
     time.sleep(random.random())
     for i in range(strip.numPixels()):
       strip.setPixelColor(i, Color(0,0,0))
-      strip.show()
+    strip.show()
     time.sleep(random.random())
 
 if __name__ == '__main__':
