@@ -26,11 +26,11 @@ def high_freq_flashing(strip, color, duration):
     for i in range(strip.numPixels()):
       strip.setPixelColor(i, color)
     strip.show()
-    time.sleep(random.random())
+    time.sleep(random.random()/100)
     for i in range(strip.numPixels()):
       strip.setPixelColor(i, Color(0,0,0))
     strip.show()
-    time.sleep(random.random())
+    time.sleep(random.random()/100)
 
 if __name__ == '__main__':
   strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
