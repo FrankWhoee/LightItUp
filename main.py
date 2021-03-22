@@ -1,9 +1,10 @@
+import math
 import time
 from rpi_ws281x import *
 import random
 import argparse
 
-LED_COUNT = 300
+LED_COUNT = 150
 LED_PIN = 18
 LED_FREQ_HZ = 800000
 LED_DMA = 10
@@ -21,23 +22,50 @@ def train(strip, length, color, wait_time_ms=50, trailing=Color(0,0,0) ):
     strip.show()
     time.sleep(wait_time_ms/1000)
 
-def high_freq_flashing(strip, color, duration):
-  for d in range(duration):
+def flash(strip, color, count, interval):
+  for d in range(count):
     for i in range(strip.numPixels()):
       strip.setPixelColor(i, color)
     strip.show()
-    time.sleep(random.random()/100)
-    for i in range(strip.numPixels()):
-      strip.setPixelColor(i, Color(0,0,0))
+    time.sleep(interval)
+    clear(strip)
     strip.show()
-    time.sleep(random.random()/100)
+    time.sleep(interval)
+
+def clear(strip):
+  for i in range(strip.numPixels()):
+    strip.setPixelColor(i, Color(0, 0, 0))
+  strip.show();
+
+def fill(strip, color):
+  for i in range(strip.numPixels()):
+    strip.setPixelColor(i, color)
+  strip.show();
+
+def timer(strip, color, total_time):
+  fill(strip, color)
+  pixels = strip.numPixels()
+  if total_time > pixels:
+    time.sleep(math.ceil(float(total_time) / pixels))
+    for i in range(0, pixels - math.ceil(pixels/float(total_time)), math.ceil(pixels/float(total_time))):
+      for k in range(i,i + math.ceil(pixels/float(total_time))):
+        strip.setPixelColor(k,Color(0,0,0))
+      strip.show()
+      time.sleep(math.ceil(float(total_time) / pixels))
+  else:
+    for i in range(0, pixels):
+      strip.setPixelColor(i, Color(0, 0, 0))
+      strip.show()
+      time.sleep(float(total_time)/pixels)
+
+  flash(strip, Color(255, 0, 0), 3, 0.5)
+
 
 if __name__ == '__main__':
   strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
   strip.begin()
-
-  high_freq_flashing(strip, Color(255,255,255), 10)
-  train(strip, 10, Color(0,255,0))
+  # flash(strip, Color(255, 00, 0), 3, 0.5)
+  timer(strip, Color(255, 255, 0), 30)
 
   # for i in range(strip.numPixels()):
   #   strip.setPixelColor(i,Color(0,255,0))
