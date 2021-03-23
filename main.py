@@ -121,9 +121,7 @@ if __name__ == '__main__':
   strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
   strip.begin()
 
-  fade(strip, (255,69,0), (0,0,0), 0.01)
-
-  # client.run(TOKEN)
+  client.run(TOKEN)
   # flash(strip, Color(255, 00, 0), 3, 0.5)
   # timer(strip, Color(255, 255, 0), 30)
 
