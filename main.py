@@ -8,6 +8,10 @@ import discord
 import numpy as np
 import argparse
 
+# TODO: Implement sunset reminders
+# https://sunrise-sunset.org/api
+# https://docs.python.org/3/library/threading.html#timer-objects
+
 # Extract secrets from local file.
 if os.path.exists("secrets.json"):
   with open("secrets.json") as f:
