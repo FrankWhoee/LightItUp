@@ -6,7 +6,9 @@ from rpi_ws281x import *
 import random
 import discord
 import numpy as np
+from sunx import get_sunset_delay
 import argparse
+from threading import Timer
 
 # TODO: Implement sunset reminders
 # https://sunrise-sunset.org/api
@@ -96,6 +98,13 @@ def timer(strip, color, total_time):
 
   flash(strip, Color(255, 0, 0), 3, 0.5)
 
+def sunset(strip):
+  fade(strip, (255,69,0), (0,0,0),0.01)
+  flash(strip,Color(255,69,0), 3,0.5)
+  fill(strip, Color(255,255,255))
+  t = Timer(get_sunset_delay() / 10000, sunset, args=strip)
+  t.start()
+
 @client.event
 async def on_message(message):
   if message.author == client.user or not message.content.startswith(prefix):
@@ -108,6 +117,19 @@ async def on_message(message):
   command = command[1:]
   if command == "superping":
     flash(strip, Color(255, 0, 0), 3, 0.5)
+  elif command == "off":
+    clear(strip)
+  elif command == "light":
+    fill(strip, Color(255,255,255))
+  elif command == "fill":
+    fill(strip, Color(int(param[0]),int(param[1]),int(param[2])))
+  elif command == "flash":
+    flash(strip, Color(int(param[0]), int(param[1]), int(param[2])), int(param[3]), float(param[4]))
+  elif command == "train":
+    train(strip, int(param[3]), Color(int(param[0]), int(param[1]), int(param[2])))
+  elif command == "fade":
+    fade(strip, (int(param[0]),int(param[1]),int(param[2])), (int(param[3]),int(param[4]),int(param[5])), 0.05)
+
 
 @client.event
 async def on_ready():
@@ -120,8 +142,10 @@ async def on_ready():
 if __name__ == '__main__':
   strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
   strip.begin()
-
+  t = Timer(get_sunset_delay(), sunset, args=[strip])
+  t.start()
   client.run(TOKEN)
+
   # flash(strip, Color(255, 00, 0), 3, 0.5)
   # timer(strip, Color(255, 255, 0), 30)
 
