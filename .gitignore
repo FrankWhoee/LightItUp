@@ -134,3 +134,4 @@ dmypy.json
 # misc
 QR.png
 logs
+secrets.json

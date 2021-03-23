@@ -1,8 +1,26 @@
+import json
 import math
+import os
 import time
 from rpi_ws281x import *
 import random
+import discord
+import numpy as np
 import argparse
+
+# Extract secrets from local file.
+if os.path.exists("secrets.json"):
+  with open("secrets.json") as f:
+    secrets = json.load(f)
+else:
+  secrets = {}
+  secrets["token"] = os.environ.get("token")
+
+# Instantiate discord.py Client
+TOKEN = secrets["token"]
+client = discord.Client()
+
+prefix = "`"
 
 LED_COUNT = 150
 LED_PIN = 18
@@ -42,6 +60,20 @@ def fill(strip, color):
     strip.setPixelColor(i, color)
   strip.show();
 
+def fade(strip, color1, color2, interval):
+  max_diff = max(tuple(np.absolute(np.subtract(color2, color1))))
+  diff = tuple(np.subtract(color2, color1))
+  r = color1[0]
+  g = color1[1]
+  b = color1[2]
+  for i in range(max_diff):
+    fill(strip, Color(int(math.floor(r)),int(math.floor(g)),int(math.floor(b))))
+    r += diff[0]/max_diff
+    g += diff[1] / max_diff
+    b += diff[2] / max_diff
+    time.sleep(interval)
+  fill(strip, Color(color2[0], color2[1], color2[2]))
+
 def timer(strip, color, total_time):
   fill(strip, color)
   pixels = strip.numPixels()
@@ -60,12 +92,36 @@ def timer(strip, color, total_time):
 
   flash(strip, Color(255, 0, 0), 3, 0.5)
 
+@client.event
+async def on_message(message):
+  if message.author == client.user or not message.content.startswith(prefix):
+    return
+  if prefix in message.content and len(message.content.split(" ")) < 2:
+    command = message.content
+  elif prefix in message.content:
+    command = message.content.split(" ")[0]
+    param = message.content.split(" ")[1:]
+  command = command[1:]
+  if command == "superping":
+    flash(strip, Color(255, 0, 0), 3, 0.5)
+
+@client.event
+async def on_ready():
+    print('Logged in as')
+    print(client.user.name)
+    print(client.user.id)
+    print('------')
+
 
 if __name__ == '__main__':
   strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
   strip.begin()
+
+  fade(strip, (255,69,0), (0,0,0), 0.01)
+
+  # client.run(TOKEN)
   # flash(strip, Color(255, 00, 0), 3, 0.5)
-  timer(strip, Color(255, 255, 0), 30)
+  # timer(strip, Color(255, 255, 0), 30)
 
   # for i in range(strip.numPixels()):
   #   strip.setPixelColor(i,Color(0,255,0))
@@ -76,4 +132,6 @@ if __name__ == '__main__':
   #   strip.setPixelColor(i,Color(0,0,0))
   #   strip.show()
   #   time.sleep(0.1)
+
+
 
