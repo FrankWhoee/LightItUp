@@ -1,3 +1,4 @@
+import asyncio
 import json
 import math
 import os
@@ -9,6 +10,29 @@ import numpy as np
 from sunx import get_sunset_delay
 import argparse
 from threading import Timer
+from threading import Thread
+from flask import Flask
+
+class async_discord_thread(Thread):
+  def __init__(self):
+    Thread.__init__(self)
+    self.loop = asyncio.get_event_loop()
+    self.start()
+
+  async def starter(self):
+    await client.start(TOKEN)
+
+  def run(self):
+    self.name = 'Discord.py'
+    self.loop.create_task(self.starter())
+    self.loop.run_forever()
+
+
+app = Flask(__name__)
+
+@app.route('/')
+def hello_world():
+    return 'Hello, World!'
 
 # TODO: Implement sunset reminders
 # https://sunrise-sunset.org/api
@@ -142,9 +166,10 @@ async def on_ready():
 if __name__ == '__main__':
   strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
   strip.begin()
-  t = Timer(get_sunset_delay(), sunset, args=[strip])
-  t.start()
-  client.run(TOKEN)
+  sunset_timer = Timer(get_sunset_delay(), sunset, args=[strip])
+  sunset_timer.start()
+  discord_thread = async_discord_thread()
+  app.run(debug=True, host="0.0.0.0")
 
   # flash(strip, Color(255, 00, 0), 3, 0.5)
   # timer(strip, Color(255, 255, 0), 30)
@@ -158,6 +183,5 @@ if __name__ == '__main__':
   #   strip.setPixelColor(i,Color(0,0,0))
   #   strip.show()
   #   time.sleep(0.1)
-
 
 
