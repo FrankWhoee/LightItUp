@@ -202,7 +202,7 @@ if __name__ == '__main__':
   strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
   strip.begin()
   sunset_timer = Timer(get_sunset_delay(), sunset, args=[strip])
-  # sunset_timer.start()
+  sunset_timer.start()
   fade(strip, (255,255,255),(0,0,0), 1)
   discord_thread = async_discord_thread()
   app.run(host="0.0.0.0")
