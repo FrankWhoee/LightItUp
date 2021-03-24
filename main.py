@@ -13,6 +13,8 @@ from threading import Timer
 from threading import Thread
 from flask import Flask
 
+instances_of_victor = 0
+
 class async_discord_thread(Thread):
   def __init__(self):
     Thread.__init__(self)
@@ -23,9 +25,13 @@ class async_discord_thread(Thread):
     await client.start(TOKEN)
 
   def run(self):
+    global instances_of_victor
+    if instances_of_victor > 0:
+      return
     self.name = 'Discord.py'
     self.loop.create_task(self.starter())
     self.loop.run_forever()
+    instances_of_victor += 1
 
 
 app = Flask(__name__)
@@ -131,59 +137,56 @@ def sunset(strip):
 
 @client.event
 async def on_message(message):
-  try:
-    if message.author == client.user or not message.content.startswith(prefix):
-      return
-    if prefix in message.content and len(message.content.split(" ")) < 2:
-      command = message.content
-      param = []
-    elif prefix in message.content:
-      command = message.content.split(" ")[0]
-      param = message.content.split(" ")[1:]
-    command = command[1:]
-    if command == "superping":
-      flash(strip, Color(255, 0, 0), 3, 0.5)
-    elif command == "off":
-      clear(strip)
-    elif command == "light":
-      fill(strip, Color(255,255,255))
-    elif command == "fill":
-      if len(param) < 3:
-        await message.channel.send("Not enough parameters! Command requires three RGB values. Ex. `fill 255 0 123`")
-      elif len(param) > 3:
-        await message.channel.send("Too many parameters! Command requires three RGB values. Ex. `fill 255 0 123`")
-      else:
-        fill(strip, Color(int(param[0]),int(param[1]),int(param[2])))
-    elif command == "flash":
-      if len(param) < 5:
-        await message.channel.send("Not enough parameters! Command requires three RGB values, a count, and interval between flashes. Ex. `flash 255 0 0 3 0.5`")
-      elif len(param) > 5:
-        await message.channel.send("Too many parameters! Command requires three RGB values, a count, and interval between flashes. Ex. `flash 255 0 0 3 0.5`")
-      else:
-        flash(strip, Color(int(param[0]), int(param[1]), int(param[2])), int(param[3]), float(param[4]))
-    elif command == "train":
-      if len(param) < 4:
-        await message.channel.send("Not enough parameters! Command requires three RGB values, and a length. Ex. `train 255 0 0 5`")
-      elif len(param) > 4:
-        await message.channel.send("Too many parameters! Command requires three RGB values, and a length. Ex. `train 255 0 0 5`")
-      else:
-        train(strip, int(param[3]), Color(int(param[0]), int(param[1]), int(param[2])))
-    elif command == "fade":
-      if len(param) < 6:
-        await message.channel.send("Not enough parameters! Command requires two sets of three RGB values. Ex. `fade 255 69 0 0 0 0`")
-      elif len(param) > 6:
-        await message.channel.send("Too many parameters! Command requires two sets of three RGB values. Ex. `fade 255 69 0 0 0 0`")
-      else:
-        fade(strip, (int(param[0]),int(param[1]),int(param[2])), (int(param[3]),int(param[4]),int(param[5])), 1)
-    elif command == "timer":
-      if len(param) == 1:
-        timer(strip, Color(255,0,0), int(param[0]))
-      elif len(param) == 4:
-        timer(strip, Color(int(param[0]), int(param[1]), int(param[2])), int(param[3]))
-      elif (len(param) > 1 and len(param) < 4) or len(param) > 4:
-        await message.channel.send("Parameter mismatch. Command requires either three RGB values and a duration or just a duration in seconds. Ex. `timer 255 0 0 5` or `timer 5`")
-  except Exception as e:
-    print(e)
+  if message.author == client.user or not message.content.startswith(prefix):
+    return
+  if prefix in message.content and len(message.content.split(" ")) < 2:
+    command = message.content
+    param = []
+  elif prefix in message.content:
+    command = message.content.split(" ")[0]
+    param = message.content.split(" ")[1:]
+  command = command[1:]
+  if command == "superping":
+    flash(strip, Color(255, 0, 0), 3, 0.5)
+  elif command == "off":
+    clear(strip)
+  elif command == "light":
+    fill(strip, Color(255,255,255))
+  elif command == "fill":
+    if len(param) < 3:
+      await message.channel.send("Not enough parameters! Command requires three RGB values. Ex. `fill 255 0 123`")
+    elif len(param) > 3:
+      await message.channel.send("Too many parameters! Command requires three RGB values. Ex. `fill 255 0 123`")
+    else:
+      fill(strip, Color(int(param[0]),int(param[1]),int(param[2])))
+  elif command == "flash":
+    if len(param) < 5:
+      await message.channel.send("Not enough parameters! Command requires three RGB values, a count, and interval between flashes. Ex. `flash 255 0 0 3 0.5`")
+    elif len(param) > 5:
+      await message.channel.send("Too many parameters! Command requires three RGB values, a count, and interval between flashes. Ex. `flash 255 0 0 3 0.5`")
+    else:
+      flash(strip, Color(int(param[0]), int(param[1]), int(param[2])), int(param[3]), float(param[4]))
+  elif command == "train":
+    if len(param) < 4:
+      await message.channel.send("Not enough parameters! Command requires three RGB values, and a length. Ex. `train 255 0 0 5`")
+    elif len(param) > 4:
+      await message.channel.send("Too many parameters! Command requires three RGB values, and a length. Ex. `train 255 0 0 5`")
+    else:
+      train(strip, int(param[3]), Color(int(param[0]), int(param[1]), int(param[2])))
+  elif command == "fade":
+    if len(param) < 6:
+      await message.channel.send("Not enough parameters! Command requires two sets of three RGB values. Ex. `fade 255 69 0 0 0 0`")
+    elif len(param) > 6:
+      await message.channel.send("Too many parameters! Command requires two sets of three RGB values. Ex. `fade 255 69 0 0 0 0`")
+    else:
+      fade(strip, (int(param[0]),int(param[1]),int(param[2])), (int(param[3]),int(param[4]),int(param[5])), 1)
+  elif command == "timer":
+    if len(param) == 1:
+      timer(strip, Color(255,0,0), int(param[0]))
+    elif len(param) == 4:
+      timer(strip, Color(int(param[0]), int(param[1]), int(param[2])), int(param[3]))
+    elif (len(param) > 1 and len(param) < 4) or len(param) > 4:
+      await message.channel.send("Parameter mismatch. Command requires either three RGB values and a duration or just a duration in seconds. Ex. `timer 255 0 0 5` or `timer 5`")
 
 
 @client.event
