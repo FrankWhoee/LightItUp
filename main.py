@@ -101,7 +101,7 @@ def fade(strip, color1, color2, interval):
     r += diff[0]/max_diff
     g += diff[1] / max_diff
     b += diff[2] / max_diff
-    time.sleep(interval)
+    time.sleep(interval/max_diff)
   fill(strip, Color(color2[0], color2[1], color2[2]))
 
 def timer(strip, color, total_time):
@@ -123,10 +123,10 @@ def timer(strip, color, total_time):
   flash(strip, Color(255, 0, 0), 3, 0.5)
 
 def sunset(strip):
-  fade(strip, (255,69,0), (0,0,0),0.01)
+  fade(strip, (255,69,0), (0,0,0),1)
   flash(strip,Color(255,69,0), 3,0.5)
   fill(strip, Color(255,255,255))
-  t = Timer(get_sunset_delay() / 10000, sunset, args=strip)
+  t = Timer(get_sunset_delay() / 10000, sunset, args=[strip])
   t.start()
 
 @client.event
@@ -174,7 +174,7 @@ async def on_message(message):
       elif len(param) > 6:
         await message.channel.send("Too many parameters! Command requires two sets of three RGB values. Ex. `fade 255 69 0 0 0 0`")
       else:
-        fade(strip, (int(param[0]),int(param[1]),int(param[2])), (int(param[3]),int(param[4]),int(param[5])), 0.05)
+        fade(strip, (int(param[0]),int(param[1]),int(param[2])), (int(param[3]),int(param[4]),int(param[5])), 1)
     elif command == "timer":
       if len(param) == 1:
         timer(strip, Color(255,0,0), int(param[0]))
@@ -192,14 +192,16 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
-
+    flash(strip, Color(0, 255, 0), 3, 0.5)
+    clear(strip)
 
 if __name__ == '__main__':
   strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
   strip.begin()
   sunset_timer = Timer(get_sunset_delay(), sunset, args=[strip])
-  sunset_timer.start()
+  # sunset_timer.start()
+  fade(strip, (255,255,255),(0,0,0), 1)
   discord_thread = async_discord_thread()
-  app.run(debug=True, host="0.0.0.0")
+  app.run(host="0.0.0.0")
 
 
