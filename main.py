@@ -132,7 +132,7 @@ def sunset(strip):
   fade(strip, (255,69,0), (0,0,0),1)
   flash(strip,Color(255,69,0), 3,0.5)
   fill(strip, Color(255,255,255))
-  t = Timer(get_sunset_delay() / 10000, sunset, args=[strip])
+  t = Timer(get_sunset_delay(), sunset, args=[strip])
   t.start()
 
 @client.event
