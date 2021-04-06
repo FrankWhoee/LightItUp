@@ -11,7 +11,7 @@ from sunx import get_sunset_delay
 import argparse
 from threading import Timer
 from threading import Thread
-from flask import Flask
+from flask import Flask, render_template, Response, send_from_directory, session
 from multiprocessing import Process
 
 instances_of_victor = 0
@@ -35,10 +35,41 @@ class async_discord_thread(Thread):
     instances_of_victor += 1
 
 app = Flask(__name__)
+app.secret_key = 'Zli6WMDUEboJnp34fzwK'.encode('utf8')
+
+@app.route('/assets/<path>')
+def send_assets(path):
+    return send_from_directory('assets', path)
+
+@app.route('/css/<path>')
+def send_style(path):
+    return send_from_directory('css', path)
+
+@app.route('/js/<path>')
+def send_js(path):
+    return send_from_directory('js', path)
 
 @app.route('/')
-def hello_world():
-    return 'Hello, World!'
+def index():
+  if "momMode" in session and session["momMode"] == True:
+    return render_template("mom.html")
+  else:
+    session["momMode"] = False
+    return render_template("index.html")
+
+@app.route('/switchmode')
+def switch_mode():
+  if "momMode" in session and session["momMode"] == True:
+    session["momMode"] = False
+    return render_template("index.html"), 200
+  else:
+    session["momMode"] = True
+    return render_template("mom.html"), 200
+
+@app.route('/momalert')
+def momalert():
+    flash(strip, Color(255, 0, 0), 3, 0.5)
+    return "", 200
 
 # TODO: Implement light protection
 # if light is >75% brightness, lower it after 5min
@@ -185,7 +216,7 @@ async def on_message(message):
     param = message.content.split(" ")[1:]
   command = command[1:]
   if command == "superping":
-    flash(strip, Color(255, 0, 0), 3, 0.5)
+    flash(strip, Color(200, 50, 218), 3, 0.5)
   elif command == "off":
     if mt != None:
       if mt.name == "timer" and message.author.id not in ADMIN:

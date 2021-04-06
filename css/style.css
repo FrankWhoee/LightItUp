@@ -1,0 +1,242 @@
+@font-face {
+  font-family: 'M Ying Hei PRC W3';
+  src: url('./MYingHeiPRC-W3.ttf')  format('truetype');
+}
+
+.chinese{
+    font-family: "M Ying Hei PRC W3";
+}
+
+* {
+    font-family: 'Kulim Park', sans-serif;
+    /*border: red 1px solid;*/
+}
+
+*:focus {
+    outline: none;
+}
+
+.label-A {
+    background-color: forestgreen;
+    border: none;
+    color: white;
+    padding: 2px 13px;
+    text-align: center;
+    text-decoration: none;
+    text-transform: none;
+    display: inline-block;
+    border-radius: 50px;
+}
+
+.card-red {
+    background-color: #e42d40;
+    border: none;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.card-white {
+    background-color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.card-red-outline {
+    border: solid #e42d40;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.text-red {
+    color: #e42d40;
+}
+
+.card-blue {
+    background-color: dodgerblue;
+    border: none;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.card-img {
+    width: auto;
+    height: auto;
+    max-width: 200px;
+    border-radius: 10px;
+}
+
+.card-yellow {
+    background-color: sandybrown;
+    border: none;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.center-viewport {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    /* bring your own prefixes */
+    transform: translate(-50%, -50%);
+}
+
+.row-center-vertical {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.col-width-equal-flex {
+    flex-basis: 0;
+    flex-shrink: 0;
+}
+
+.button-red {
+    background-color: #e42d40;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    text-transform: none;
+    display: inline-block;
+    border-radius: 50px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.button-default {
+    background-color: #ba4c28;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    text-transform: none;
+    display: inline-block;
+    border-radius: 50px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.button-default-big {
+    background-color: #ba4c28;
+    border: none;
+    color: white;
+    font-size: 200px;
+    padding: 60px 128px;
+    text-align: center;
+    text-decoration: none;
+    text-transform: none;
+    display: inline-block;
+    border-radius: 50px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+
+.button-blue {
+    background-color: dodgerblue;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    text-transform: none;
+    display: inline-block;
+    border-radius: 50px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.button-light-blue {
+    background-color: #80c1ff;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    text-transform: none;
+    display: inline-block;
+    border-radius: 50px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.button-white {
+    background-color: white;
+    border: none;
+    color: black;
+    padding: 15px 25px;
+    text-align: center;
+    text-decoration: none;
+    text-transform: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 50px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.button-black {
+    background-color: black;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    text-transform: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 50px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.button-green {
+    background-color: forestgreen;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    text-transform: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 50px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.font-large {
+    font-size: 30px;
+}
+
+a:link {
+    text-decoration: none;
+}
+
+a:visited {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: none;
+}
+
+a:active {
+    text-decoration: none;
+}
+
+.overflow-trick {
+    position: absolute;
+    right: 29px;
+}
+
+input {
+    border-radius: 20px;
+    border: black 1px solid;
+    width: 100%
+}
