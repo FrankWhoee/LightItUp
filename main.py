@@ -99,35 +99,76 @@ LED_INVERT = False
 LED_CHANNEL = 0
 CORNER_LED = 45
 mt = None
+mt_terminate = False
 ADMIN = [194857448673247235, 385297155503685632]
 
 def train(strip, length, color, wait_time_ms=50, trailing=Color(0,0,0)):
-  global mt
-  def helper():
-    for i in range(length):
-      strip.setPixelColor(i, color)
-      strip.show()
-    for i in range(strip.numPixels()):
-      strip.setPixelColor(i, trailing)
-      strip.setPixelColor(i + length, color)
-      strip.show()
-      time.sleep(wait_time_ms/1000)
-  mt = Process(target=helper, name="train")
-  mt.start()
+    global mt
+    global mt_terminate
+    child_process = False
+    while True:
+        if mt_terminate:
+            mt_terminate = False
+            return
+        if mt is None:
+            break
+        try:
+            mt.join(timeout=0)
+        except:
+            child_process = True
+            break
+        if not mt.is_alive():
+            break
+        time.sleep(0.5)
+    def helper():
+        for i in range(length):
+          strip.setPixelColor(i, color)
+          strip.show()
+        for i in range(strip.numPixels()):
+          strip.setPixelColor(i, trailing)
+          strip.setPixelColor(i + length, color)
+          strip.show()
+          time.sleep(wait_time_ms/1000)
+
+    if child_process:
+        helper()
+    else:
+        mt = Process(target=helper, name="train")
+        mt.start()
 
 def flash(strip, color, count, interval):
-  global mt
-  def helper():
-    for d in range(count):
-      for i in range(strip.numPixels()):
-        strip.setPixelColor(i, color)
-      strip.show()
-      time.sleep(interval)
-      clear(strip)
-      strip.show()
-      time.sleep(interval)
-  mt = Process(target=helper, name="flash")
-  mt.start()
+    global mt
+    global mt_terminate
+    child_process = False
+    while True:
+        if mt_terminate:
+            mt_terminate = False
+            return
+        if mt is None:
+            break
+        try:
+            mt.join(timeout=0)
+        except:
+            child_process = True
+            break
+        if not mt.is_alive():
+            break
+        time.sleep(0.5)
+    def helper():
+        for d in range(count):
+          for i in range(strip.numPixels()):
+            strip.setPixelColor(i, color)
+          strip.show()
+          time.sleep(interval)
+          clear(strip)
+          strip.show()
+          time.sleep(interval)
+
+    if child_process:
+        helper()
+    else:
+        mt = Process(target=helper, name="flash")
+        mt.start()
 
 def clear(strip):
   for i in range(strip.numPixels()):
@@ -141,6 +182,22 @@ def fill(strip, color):
 
 def fade(strip, color1, color2, interval):
   global mt
+  global mt_terminate
+  child_process = False
+  while True:
+      if mt_terminate:
+          mt_terminate = False
+          return
+      if mt is None:
+          break
+      try:
+        mt.join(timeout=0)
+      except:
+          child_process = True
+          break
+      if not mt.is_alive():
+          break
+      time.sleep(0.5)
   def helper():
     max_diff = max(tuple(np.absolute(np.subtract(color2, color1))))
     diff = tuple(np.subtract(color2, color1))
@@ -154,58 +211,101 @@ def fade(strip, color1, color2, interval):
       b += diff[2] / max_diff
       time.sleep(interval/max_diff)
     fill(strip, Color(color2[0], color2[1], color2[2]))
-  mt = Process(target=helper, name="fade")
-  mt.start()
+  if child_process:
+      helper()
+  else:
+    mt = Process(target=helper, name="fade")
+    mt.start()
 
 def timer(strip, color, total_time):
-  global mt
-  def helper():
-    fill(strip, color)
-    pixels = strip.numPixels()
-    if total_time > pixels:
-      time.sleep(math.ceil(float(total_time) / pixels))
-      for i in range(0, pixels - math.ceil(pixels/float(total_time)), math.ceil(pixels/float(total_time))):
-        for k in range(i,i + math.ceil(pixels/float(total_time))):
-          strip.setPixelColor(k,Color(0,0,0))
-        strip.show()
-        time.sleep(math.ceil(float(total_time) / pixels))
-    else:
-      for i in range(0, pixels):
-        strip.setPixelColor(i, Color(0, 0, 0))
-        strip.show()
-        time.sleep(float(total_time)/pixels)
+    global mt
+    global mt_terminate
+    child_process = False
+    while True:
+        if mt_terminate:
+            mt_terminate = False
+            return
+        if mt is None:
+            break
+        try:
+            mt.join(timeout=0)
+        except:
+            child_process = True
+            break
+        if not mt.is_alive():
+            break
+        time.sleep(0.5)
+    def helper():
+        fill(strip, color)
+        pixels = strip.numPixels()
+        if total_time > pixels:
+          time.sleep(math.ceil(float(total_time) / pixels))
+          for i in range(0, pixels - math.ceil(pixels/float(total_time)), math.ceil(pixels/float(total_time))):
+            for k in range(i,i + math.ceil(pixels/float(total_time))):
+              strip.setPixelColor(k,Color(0,0,0))
+            strip.show()
+            time.sleep(math.ceil(float(total_time) / pixels))
+        else:
+          for i in range(0, pixels):
+            strip.setPixelColor(i, Color(0, 0, 0))
+            strip.show()
+            time.sleep(float(total_time)/pixels)
 
-    flash(strip, Color(255, 0, 0), 3, 0.5)
-  mt = Process(target=helper, name="timer")
-  mt.start()
+        flash(strip, Color(255, 0, 0), 3, 0.5)
+
+    if child_process:
+        helper()
+    else:
+        mt = Process(target=helper, name="timer")
+        mt.start()
 
 def sunset(strip):
-  global mt
-  def helper():
-    fade(strip, (255,69,0), (0,0,0),1)
-    for i in range(CORNER_LED, strip.numPixels()):
-      strip.setPixelColor(i, Color(255,69,0))
-    strip.show()
-    for k in range(3):
-      for i in range(CORNER_LED, -1, -1):
-        strip.setPixelColor(i, Color(int(255 * (float(i)/CORNER_LED)), int(69 * (float(i)/CORNER_LED)), int(255 * ((CORNER_LED - float(i))/CORNER_LED))))
+    global mt
+    global mt_terminate
+    child_process = False
+    while True:
+        if mt_terminate:
+            mt_terminate = False
+            return
+        if mt is None:
+            break
+        try:
+            mt.join(timeout=0)
+        except:
+            child_process = True
+            break
+        if not mt.is_alive():
+            break
+        time.sleep(0.5)
+    def helper():
+        fade(strip, (255,69,0), (0,0,0),1)
+        for i in range(CORNER_LED, strip.numPixels()):
+          strip.setPixelColor(i, Color(255,69,0))
         strip.show()
-        time.sleep(0.02)
-      for i in range(CORNER_LED, -1, -1):
-        strip.setPixelColor(i, Color(0, 0, 0))
-        strip.show()
-        time.sleep(0.02)
+        for k in range(3):
+          for i in range(CORNER_LED, -1, -1):
+            strip.setPixelColor(i, Color(int(255 * (float(i)/CORNER_LED)), int(69 * (float(i)/CORNER_LED)), int(255 * ((CORNER_LED - float(i))/CORNER_LED))))
+            strip.show()
+            time.sleep(0.02)
+          for i in range(CORNER_LED, -1, -1):
+            strip.setPixelColor(i, Color(0, 0, 0))
+            strip.show()
+            time.sleep(0.02)
 
-    flash(strip,Color(255,69,0), 3,0.5)
-    fill(strip, Color(125,125,125))
-  t = Timer(get_sunset_delay(), sunset, args=[strip])
-  t.start()
-  mt = Process(target=helper, name="sunset")
-  mt.start()
+        flash(strip,Color(255,69,0), 3,0.5)
+        fill(strip, Color(125,125,125))
+    t = Timer(get_sunset_delay(), sunset, args=[strip])
+    t.start()
+    if child_process:
+        helper()
+    else:
+        mt = Process(target=helper, name="sunset")
+        mt.start()
 
 @client.event
 async def on_message(message):
   global mt
+  global mt_terminate
   if message.author == client.user or not message.content.startswith(prefix):
     return
   if prefix in message.content and len(message.content.split(" ")) < 2:
@@ -223,6 +323,7 @@ async def on_message(message):
         await message.channel.send("Non-admin users can not override timer commands.")
         return
       mt.terminate()
+      mt_terminate = True
     clear(strip)
   elif command == "light":
     fill(strip, Color(125, 125, 125))
@@ -299,4 +400,3 @@ if __name__ == '__main__':
   flash(strip,Color(255,69,0),2,0.5)
   discord_thread = async_discord_thread()
   app.run(host="0.0.0.0")
-
