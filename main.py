@@ -16,60 +16,90 @@ from multiprocessing import Process
 
 instances_of_victor = 0
 
+class processNode():
+    def __init__(self, process, complete: bool, prev, next, name):
+        self.process = process
+        self.complete = complete
+        self.prev = prev
+        self.next = next
+        self.name = name
+
+    def helper(self):
+        global mt
+
+        while self.prev is not None:
+            if self.prev.complete:
+                break
+            time.sleep(0.1)
+        self.process()
+        self.complete = True
+        if self.next is not None:
+            mt = Process(target=self.next.helper, name=self.next.name)
+            mt.start()
+
 class async_discord_thread(Thread):
-  def __init__(self):
-    Thread.__init__(self)
-    self.loop = asyncio.get_event_loop()
-    self.start()
+    def __init__(self):
+        Thread.__init__(self)
+        self.loop = asyncio.get_event_loop()
+        self.start()
 
-  async def starter(self):
-    await client.start(TOKEN)
+    async def starter(self):
+        await client.start(TOKEN)
 
-  def run(self):
-    global instances_of_victor
-    if instances_of_victor > 0:
-      return
-    self.name = 'Discord.py'
-    self.loop.create_task(self.starter())
-    self.loop.run_forever()
-    instances_of_victor += 1
+    def run(self):
+        global instances_of_victor
+        if instances_of_victor > 0:
+            return
+        self.name = 'Discord.py'
+        self.loop.create_task(self.starter())
+        self.loop.run_forever()
+        instances_of_victor += 1
+
+pnode = processNode(0,True,None,None,"init")
 
 app = Flask(__name__)
 app.secret_key = 'Zli6WMDUEboJnp34fzwK'.encode('utf8')
+
 
 @app.route('/assets/<path>')
 def send_assets(path):
     return send_from_directory('assets', path)
 
+
 @app.route('/css/<path>')
 def send_style(path):
     return send_from_directory('css', path)
+
 
 @app.route('/js/<path>')
 def send_js(path):
     return send_from_directory('js', path)
 
+
 @app.route('/')
 def index():
-  if "momMode" in session and session["momMode"] == True:
-    return render_template("mom.html")
-  else:
-    session["momMode"] = False
-    return render_template("index.html")
+    if "momMode" in session and session["momMode"] == True:
+        return render_template("mom.html")
+    else:
+        session["momMode"] = False
+        return render_template("index.html")
+
 
 @app.route('/switchmode')
 def switch_mode():
-  if "momMode" in session and session["momMode"] == True:
-    session["momMode"] = False
-    return render_template("index.html"), 200
-  else:
-    session["momMode"] = True
-    return render_template("mom.html"), 200
+    if "momMode" in session and session["momMode"] == True:
+        session["momMode"] = False
+        return render_template("index.html"), 200
+    else:
+        session["momMode"] = True
+        return render_template("mom.html"), 200
+
 
 @app.route('/momalert')
 def momalert():
     flash(strip, Color(255, 0, 0), 3, 0.5)
     return "", 200
+
 
 # TODO: Implement light protection
 # if light is >75% brightness, lower it after 5min
@@ -78,11 +108,12 @@ def momalert():
 
 # Extract secrets from local file.
 if os.path.exists("secrets.json"):
-  with open("secrets.json") as f:
-    secrets = json.load(f)
+    with open("secrets.json") as f:
+        secrets = json.load(f)
 else:
-  secrets = {}
-  secrets["token"] = os.environ.get("token")
+    print("WARNING: No secrets.json found. Assuming no Discord Token.")
+    secrets = {}
+    secrets["token"] = os.environ.get("token")
 
 # Instantiate discord.py Client
 TOKEN = secrets["token"]
@@ -101,6 +132,7 @@ CORNER_LED = 45
 mt = None
 mt_terminate = False
 ADMIN = [194857448673247235, 385297155503685632]
+
 
 def train(strip, length, color, wait_time_ms=50, trailing=Color(0,0,0)):
     global mt
@@ -171,14 +203,16 @@ def flash(strip, color, count, interval):
         mt.start()
 
 def clear(strip):
-  for i in range(strip.numPixels()):
-    strip.setPixelColor(i, Color(0, 0, 0))
-  strip.show();
+    for i in range(strip.numPixels()):
+        strip.setPixelColor(i, Color(0, 0, 0))
+    strip.show();
+
 
 def fill(strip, color):
-  for i in range(strip.numPixels()):
-    strip.setPixelColor(i, color)
-  strip.show();
+    for i in range(strip.numPixels()):
+        strip.setPixelColor(i, color)
+    strip.show();
+
 
 def fade(strip, color1, color2, interval):
   global mt
@@ -379,7 +413,6 @@ async def on_message(message):
     elif (len(param) > 1 and len(param) < 4) or len(param) > 4:
       await message.channel.send(
         "Parameter mismatch. Command requires either three RGB values and a duration or just a duration in seconds. Ex. `timer 255 0 0 5` or `timer 5`")
-
 
 @client.event
 async def on_ready():
