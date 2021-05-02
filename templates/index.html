@@ -8,7 +8,7 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/style.css?v=1">
     <title>Light It UP</title>
 </head>
 <body>
@@ -16,22 +16,86 @@
 <!-- Image and text -->
 <nav class="navbar navbar-light">
     <a class="navbar-brand" href="#">
-        <img src="../assets/logo-words.svg" height="75" class="d-inline-block align-top mr-3"
+        <img src="../assets/logo-words.svg" style="height: 5vh" class="d-inline-block align-top mr-3"
              alt="">
     </a>
     <form class="form-inline">
         <button class="btn btn-danger my-2 my-sm-0 px-4 chinese" style="border-radius: 20px" type="button" onclick="switchMode()">妈妈模式: OFF</button>
     </form>
 </nav>
-<div class="container text-center" style="margin-top: 20vh">
-    <div class="row">
-        <div class="col text-center">
-            <a class="button-default-big chinese" style="color: white"
-               onclick="sweetAlertExample()">叫宝宝</a>
+<div class="container my-5">
+    <h2 style="font-family: Dual">AMBIENCE</h2>
+    <div class="row ">
+        <div class="col-sm-auto">
+            <a class="squarebutton" style="background-color: yellow"
+               onclick="ambience('light')"><img src="../assets/icons/sun.svg"></a>
+        </div>
+        <div class="col-sm-auto">
+            <a class="squarebutton" style="background-color: black"
+               onclick="ambience('off')"><img src="../assets/icons/power.svg"></a>
+        </div>
+        <div class="col-sm-auto">
+            <a class="squarebutton" style="background-color: darkblue"
+               onclick="ambience('dim')"><img src="../assets/icons/moon.svg"></a>
+        </div>
+        <div class="col-sm-auto">
+            <a class="squarebutton" style="background-color: saddlebrown"
+               onclick="ambience('superdim')"><img src="../assets/icons/sunset.svg"></a>
+        </div>
+        <div class="col-sm-auto">
+            <a class="squarebutton" style="background-color: darkred"
+               onclick="ambience('reddim')"><img src="../assets/icons/sunset.svg"></a>
+        </div>
+        <div class="col-sm-auto">
+            <a class="squarebutton" style="background-color: deeppink"
+               onclick="ambience('party')"><img src="../assets/icons/fireworks.svg"></a>
+        </div>
+        <div class="col-sm-auto">
+            <a class="squarebutton" style="background-color: darkseagreen"
+               onclick=""><img src="../assets/icons/settings.svg"></a>
         </div>
     </div>
 </div>
 
+<div class="container my-5">
+    <h2 style="font-family: Dual">SIGNALS</h2>
+    <div class="row ">
+        <div class="col-sm-auto">
+            <a class="squarebutton" style="background-color: #ff2a2a"
+               onclick="signal('emergency')"><img src="../assets/icons/alert-triangle.svg"></a>
+        </div>
+        <div class="col-sm-auto">
+            <a class="squarebutton" style="background-color: #ff6600"
+               onclick="signal('kitchen')"><img src="../assets/icons/coffee.svg"></a>
+        </div>
+        <div class="col-sm-auto">
+            <a class="squarebutton" style="background-color: #00aad4"
+               onclick="signal('dad')"><img src="../assets/icons/database.svg"></a>
+        </div>
+        <div class="col-sm-auto">
+            <a class="squarebutton" style="background-color: #4400aa"
+               onclick="signal('theater')"><img src="../assets/icons/film.svg"></a>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    <h2 style="font-family: Dual">FUNCTIONS</h2>
+    <div class="row ">
+        <div class="col-sm-auto">
+            <a class="squarebutton" style="background-color: #5fd35f"
+               onclick="func('sun')"><img src="../assets/icons/calendar.svg"></a>
+        </div>
+        <div class="col-sm-auto">
+            <a class="squarebutton" style="background-color: #9955ff"
+               onclick="func('sun')"><img src="../assets/icons/clock.svg"></a>
+        </div>
+        <div class="col-sm-auto">
+            <a class="squarebutton" style="background-color: coral"
+               onclick="func('sun')"><img src="../assets/icons/bell.svg"></a>
+        </div>
+    </div>
+</div>
 
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
