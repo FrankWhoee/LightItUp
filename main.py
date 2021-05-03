@@ -113,9 +113,7 @@ def momalert():
 def ambience():
     global mt
     global mt_terminate
-
     ambtype = request.args["v"]
-    print(ambtype)
     if ambtype == "light":
         fill(strip, Color(125, 125, 125))
     elif ambtype == "off":
@@ -207,7 +205,7 @@ def train(strip, length, color, wait_time_ms=50, trailing=Color(0, 0, 0)):
     while True:
         if mt_terminate:
             mt_terminate = False
-            return
+            break
         if mt is None:
             break
         try:
@@ -243,7 +241,7 @@ def flash(strip, color, count, interval):
     while True:
         if mt_terminate:
             mt_terminate = False
-            return
+            break
         if mt is None:
             break
         try:
@@ -291,7 +289,7 @@ def fade(strip, color1, color2, interval):
     while True:
         if mt_terminate:
             mt_terminate = False
-            return
+            break
         if mt is None:
             break
         try:
@@ -331,7 +329,7 @@ def timer(strip, color, total_time):
     while True:
         if mt_terminate:
             mt_terminate = False
-            return
+            break
         if mt is None:
             break
         try:
@@ -375,7 +373,7 @@ def sunset(strip):
     while True:
         if mt_terminate:
             mt_terminate = False
-            return
+            break
         if mt is None:
             break
         try:
