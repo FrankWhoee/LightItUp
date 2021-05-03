@@ -1,3 +1,5 @@
+ $('[data-toggle="tooltip"]').tooltip();
+
 function switchMode() {
     $.ajax({
         type: "GET",

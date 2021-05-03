@@ -3,6 +3,11 @@
   src: url('./MYingHeiPRC-W3.ttf')  format('truetype');
 }
 
+@font-face {
+  font-family: 'Dual';
+  src: url('./Dual-300.ttf')  format('truetype');
+}
+
 .chinese{
     font-family: "M Ying Hei PRC W3";
 }

@@ -111,11 +111,17 @@ def momalert():
 
 @app.route('/ambience')
 def ambience():
+    global mt
+    global mt_terminate
+
     ambtype = request.args["v"]
     print(ambtype)
     if ambtype == "light":
         fill(strip, Color(125, 125, 125))
     elif ambtype == "off":
+        if mt != None:
+            mt.terminate()
+            mt_terminate = True
         clear(strip)
     elif ambtype == "dim":
         fill(strip, Color(5, 5, 5))
