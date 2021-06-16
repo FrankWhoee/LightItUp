@@ -19,6 +19,8 @@ from discord.ext import tasks
 
 instances_of_victor = 0
 
+timers = {"late_evening": (23,0,5,5,5), "midnight":(23,59,0,0,0)}
+
 class processNode():
     def __init__(self, process, complete: bool, prev, next, name):
         self.process = process
@@ -165,12 +167,6 @@ def signal():
         flash(strip,Color(68,0,170),3,0.5)
     return "", 200
 
-
-# TODO: Implement light protection
-# if light is >75% brightness, lower it after 5min
-# Add dim mode
-# Poll discord status, if idle, turn lights off.
-
 # Extract secrets from local file.
 if os.path.exists("secrets.json"):
     with open("secrets.json") as f:
@@ -287,8 +283,38 @@ def fill(strip, color):
         strip.setPixelColor(i, color)
     strip.show();
 
+# def fade(strip,color,interval):
+#     global mt
+#     global mt_terminate
+#     child_process = False
+#     while True:
+#         if mt_terminate:
+#             mt_terminate = False
+#             break
+#         if mt is None:
+#             break
+#         try:
+#             mt.join(timeout=0)
+#         except:
+#             child_process = True
+#             break
+#         if not mt.is_alive():
+#             break
+#         time.sleep(0.5)
+#
+#     def helper():
+#        for i in range(int(interval/0.05)):
+#            for k in range(strip.numPixels()):
+#
+#            time.sleep(0.05)
+#
+#     if child_process:
+#         helper()
+#     else:
+#         mt = Process(target=helper, name="fade")
+#         mt.start()
 
-def fade(strip, color1, color2, interval):
+def fade_from_to(strip, color1, color2, interval):
     global mt
     global mt_terminate
     child_process = False
@@ -392,7 +418,7 @@ def sunset(strip):
         time.sleep(0.5)
 
     def helper():
-        fade(strip, (255, 69, 0), (0, 0, 0), 1)
+        fade_from_to(strip, (255, 69, 0), (0, 0, 0), 1)
         for i in range(CORNER_LED, strip.numPixels()):
             strip.setPixelColor(i, Color(255, 69, 0))
         strip.show()
@@ -418,11 +444,16 @@ def sunset(strip):
         mt = Process(target=helper, name="sunset")
         mt.start()
 
-def sleep_timer(strip):
-    fill(strip,Color(5,5,5))
+def get_time_delta(hour,minute,second):
     today = datetime.today()
-    target = datetime(today.year,today.month,today.day + 1,21)
-    Timer(abs(target - today).seconds,sleep_timer).start()
+    target = datetime(today.year, today.month, today.day, hour,minute,second)
+    if target > today:
+        target = datetime(today.year, today.month, today.day + 1, hour, minute, second)
+    return abs(target - today).seconds
+
+def daily_timer(strip, data):
+    fill(strip, Color(data[2], data[3], data[4]))
+    Timer(get_time_delta(data[0],data[1],0),daily_timer, args=[strip,data]).start()
 
 def brightness_protection(strip):
     for i in range(0,strip.numPixels()):
@@ -520,7 +551,7 @@ async def on_message(message):
             await message.channel.send(
                 "Too many parameters! Command requires two sets of three RGB values. Ex. `fade 255 69 0 0 0 0`")
         else:
-            fade(strip, (int(param[0]), int(param[1]), int(param[2])), (int(param[3]), int(param[4]), int(param[5])), 1)
+            fade_from_to(strip, (int(param[0]), int(param[1]), int(param[2])), (int(param[3]), int(param[4]), int(param[5])), 1)
     elif command == "timer":
         if len(param) == 1:
             timer(strip, Color(255, 0, 0), int(param[0]))
@@ -562,8 +593,8 @@ if __name__ == '__main__':
     brightness_protection_timer.start()
 
     today = datetime.today()
-    target = datetime(today.year, today.month, today.day + 1, 21)
-    Timer(abs(target - today).seconds, sleep_timer).start()
+    for t in timers.keys():
+        Timer(get_time_delta(timers[t][0], timers[t][1], 0), daily_timer, args=[strip, timers[t]]).start()
 
 
     # flash(strip, Color(255, 69, 0), 2, 0.5)
