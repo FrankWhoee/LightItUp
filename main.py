@@ -3,6 +3,8 @@ import json
 import math
 import os
 import time
+from datetime import date, datetime
+
 from rpi_ws281x import *
 import random
 import discord
@@ -13,9 +15,9 @@ from threading import Timer
 from threading import Thread
 from flask import Flask, render_template, Response, send_from_directory, session, request
 from multiprocessing import Process
+from discord.ext import tasks
 
 instances_of_victor = 0
-
 
 class processNode():
     def __init__(self, process, complete: bool, prev, next, name):
@@ -56,7 +58,6 @@ class async_discord_thread(Thread):
         self.loop.create_task(self.starter())
         self.loop.run_forever()
         instances_of_victor += 1
-
 
 pnode = processNode(0, True, None, None, "init")
 
@@ -181,7 +182,11 @@ else:
 
 # Instantiate discord.py Client
 TOKEN = secrets["token"]
-client = discord.Client()
+intents = discord.Intents.all()
+
+client = discord.Client(intents=intents)
+
+previous_discord_status = None
 
 prefix = "`"
 
@@ -196,6 +201,7 @@ CORNER_LED = 45
 mt = None
 mt_terminate = False
 ADMIN = [194857448673247235, 385297155503685632]
+
 
 
 def train(strip, length, color, wait_time_ms=50, trailing=Color(0, 0, 0)):
@@ -412,6 +418,30 @@ def sunset(strip):
         mt = Process(target=helper, name="sunset")
         mt.start()
 
+def sleep_timer(strip):
+    fill(strip,Color(5,5,5))
+    today = datetime.today()
+    target = datetime(today.year,today.month,today.day + 1,21)
+    Timer(abs(target - today).seconds,sleep_timer).start()
+
+def brightness_protection(strip):
+    for i in range(0,strip.numPixels()):
+        c = strip.getPixelColorRGB(i)
+        r = c.r
+        g = c.g
+        b = c.b
+        if (r+g+b) > 375:
+            adjustment = 375/(r+g+b)
+            r *= adjustment
+            b *= adjustment
+            g *= adjustment
+            r = int(math.floor(r))
+            g = int(math.floor(g))
+            b = int(math.floor(b))
+        strip.setPixelColor(i,Color(r,g,b))
+    strip.show()
+    t = Timer(300, brightness_protection, args=[strip])
+    t.start()
 
 @client.event
 async def on_message(message):
@@ -436,6 +466,13 @@ async def on_message(message):
             mt.terminate()
             mt_terminate = True
         clear(strip)
+    elif command == "status":
+        guild = await client.fetch_guild(420468091559084033)
+        print(guild.name)
+        member = await guild.fetch_member(194857448673247235)
+        print(member.name)
+        print(member.raw_status)
+        print(member.activity.name)
     elif command == "light":
         fill(strip, Color(125, 125, 125))
     elif command == "dim":
@@ -495,12 +532,20 @@ async def on_message(message):
 
 
 @client.event
+async def on_member_update(before, after):
+    global strip
+    if before.id == 194857448673247235 and after.id == 194857448673247235:
+        if str(before.status) == "online":
+            if str(after.status) == "offline" or str(after.status) == "idle" or after.is_on_mobile():
+                clear(strip)
+
+@client.event
 async def on_ready():
     print('Logged in as')
     print(client.user.name)
     print(client.user.id)
     print('------')
-    flash(strip, Color(0, 255, 0), 3, 0.5)
+    # flash(strip, Color(0, 255, 0), 3, 0.5)
     clear(strip)
 
 
@@ -508,9 +553,20 @@ if __name__ == '__main__':
     strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
     strip.begin()
     clear(strip)
-    fade(strip, (255, 255, 255), (0, 0, 0), 1)
+    # fade(strip, (255, 255, 255), (0, 0, 0), 1)
+
     sunset_timer = Timer(get_sunset_delay(), sunset, args=[strip])
     sunset_timer.start()
-    flash(strip, Color(255, 69, 0), 2, 0.5)
+
+    brightness_protection_timer = Timer(300, brightness_protection, args=[strip])
+    brightness_protection_timer.start()
+
+    today = datetime.today()
+    target = datetime(today.year, today.month, today.day + 1, 21)
+    Timer(abs(target - today).seconds, sleep_timer).start()
+
+
+    # flash(strip, Color(255, 69, 0), 2, 0.5)
     discord_thread = async_discord_thread()
+
     app.run(host="0.0.0.0")
