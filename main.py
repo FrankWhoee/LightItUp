@@ -567,7 +567,7 @@ async def on_member_update(before, after):
     global strip
     if before.id == 194857448673247235 and after.id == 194857448673247235:
         if str(before.status) == "online":
-            if str(after.status) == "offline" or str(after.status) == "idle" or after.is_on_mobile():
+            if str(after.status) == "offline" or str(after.status) == "idle":
                 clear(strip)
 
 @client.event
