@@ -19,7 +19,7 @@ from discord.ext import tasks
 
 instances_of_victor = 0
 
-timers = {"late_evening": (23,0,5,5,5), "midnight":(23,59,0,0,0)}
+timers = {"late_evening": (23,30,5,5,5), "midnight":(23,59,0,0,0)}
 
 class processNode():
     def __init__(self, process, complete: bool, prev, next, name):
@@ -152,6 +152,32 @@ def ambience():
         strip.show()
     return "", 200
 
+def rainbow():
+    rainbow_array = []
+    for i in range(0, int(strip.numPixels() / 6)):
+        rainbow_array.append(Color(255, int(i * 255 / (strip.numPixels() / 6)), 0))
+    for i in range(0, int(strip.numPixels() / 6)):
+        rainbow_array.append(Color(255 - int(i * 255 / (strip.numPixels() / 6)), 255 , 0))
+    for i in range(0, int(strip.numPixels() / 6)):
+        rainbow_array.append(Color(0,255, int(i * 255 / (strip.numPixels() / 6))))
+    for i in range(0, int(strip.numPixels() / 6)):
+        rainbow_array.append(Color(0, 255 - int(i * 255 / (strip.numPixels() / 6)), 255))
+    for i in range(0, int(strip.numPixels() / 6)):
+        rainbow_array.append(Color(int(i * 255 / (strip.numPixels() / 6)), 0, 255))
+    for i in range(0, int(strip.numPixels() / 6)):
+        rainbow_array.append(Color(255,0,255-int(i * 255 / (strip.numPixels() / 6))))
+    while True:
+        for i in range(len(rainbow_array)):
+            mod_array = rainbow_array[i:len(rainbow_array)]
+            mod_array.extend(rainbow_array[0:i])
+            show_array(strip,mod_array)
+
+def show_array(strip,array):
+    for i in range(len(array)):
+        # print(i)
+        # print(array[i])
+        strip.setPixelColor(i,array[i])
+    strip.show()
 
 @app.route('/signal')
 def signal():
@@ -566,9 +592,9 @@ async def on_message(message):
 async def on_member_update(before, after):
     global strip
     if before.id == 194857448673247235 and after.id == 194857448673247235:
-        if str(before.status) == "online":
-            if str(after.status) == "offline" or str(after.status) == "idle":
-                clear(strip)
+        if str(before.status) == "online" and (str(after.status) == "offline" or str(after.status) == "idle"):
+            print("Turning off strip to save energy: Discord status is idle or offline.")
+            clear(strip)
 
 @client.event
 async def on_ready():
@@ -576,7 +602,12 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
-    # flash(strip, Color(0, 255, 0), 3, 0.5)
+    fade_from_to(strip, (0, 0, 0),(255, 255, 255), 2)
+    fade_from_to(strip, (255, 255, 255), (50, 50, 50),0.1)
+    time.sleep(0.1)
+    fade_from_to(strip, (50, 50, 50), (255, 255, 255), 0.1)
+    time.sleep(0.1)
+    fade_from_to(strip, (255, 255, 255), (0, 0, 0), 0.5)
     clear(strip)
 
 
@@ -584,16 +615,19 @@ if __name__ == '__main__':
     strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
     strip.begin()
     clear(strip)
-    # fade(strip, (255, 255, 255), (0, 0, 0), 1)
-
-    sunset_timer = Timer(get_sunset_delay(), sunset, args=[strip])
-    sunset_timer.start()
+    # rainbow()
+    try:
+        sunset_timer = Timer(get_sunset_delay(), sunset, args=[strip])
+        sunset_timer.start()
+    except:
+        flash(strip,Color(125,0,0),3,0.1)
 
     brightness_protection_timer = Timer(300, brightness_protection, args=[strip])
     brightness_protection_timer.start()
 
     today = datetime.today()
     for t in timers.keys():
+        print(get_time_delta(timers[t][0], timers[t][1], 0))
         Timer(get_time_delta(timers[t][0], timers[t][1], 0), daily_timer, args=[strip, timers[t]]).start()
 
 
