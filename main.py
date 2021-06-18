@@ -487,11 +487,12 @@ def sunset(strip):
 def get_time_delta(hour,minute,second):
     today = datetime.today()
     target = datetime(today.year, today.month, today.day, hour,minute,second)
-    if target > today:
+    if today > target:
         target = datetime(today.year, today.month, today.day + 1, hour, minute, second)
     return abs(target - today).seconds
 
 def daily_timer(strip, data):
+    print("Triggered timer: " + str(data))
     fill(strip, Color(data[2], data[3], data[4]))
     Timer(get_time_delta(data[0],data[1],0),daily_timer, args=[strip,data]).start()
 
