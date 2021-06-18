@@ -138,18 +138,7 @@ def ambience():
         strip.show()
     elif ambtype == "party":
         clear(strip)
-        for i in range(0, int(strip.numPixels() / 5)):
-            strip.setPixelColor(i, Color(255, int(i * 255 / (strip.numPixels() / 5)), 0))
-        for i in range(int(strip.numPixels() / 5), int(strip.numPixels() / 5) * 2):
-            strip.setPixelColor(i,
-                                Color(255 - int((i - (strip.numPixels() / 5)) * 255 / (strip.numPixels() / 5)), 255, 0))
-        for i in range(int(strip.numPixels() / 5) * 2, int(strip.numPixels() / 5) * 3):
-            strip.setPixelColor(i, Color(0, 255, int((i - (strip.numPixels() / 5)*2)  * 255 / (strip.numPixels() / 5))))
-        for i in range(int(strip.numPixels() / 5) * 3, int(strip.numPixels() / 5) * 4):
-            strip.setPixelColor(i, Color(0, 255 - int((i - (strip.numPixels() / 5)*3)  * 255 / (strip.numPixels() / 5)), 255))
-        for i in range(int(strip.numPixels() / 5) * 4, strip.numPixels()):
-            strip.setPixelColor(i, Color(int((i - (strip.numPixels() / 5)*4)  * 255 / (strip.numPixels() / 5)), 0, 255))
-        strip.show()
+        rainbow()
     return "", 200
 
 def rainbow():
@@ -166,11 +155,36 @@ def rainbow():
         rainbow_array.append(Color(int(i * 255 / (strip.numPixels() / 6)), 0, 255))
     for i in range(0, int(strip.numPixels() / 6)):
         rainbow_array.append(Color(255,0,255-int(i * 255 / (strip.numPixels() / 6))))
+    global mt
+    global mt_terminate
+    child_process = False
     while True:
-        for i in range(len(rainbow_array)):
-            mod_array = rainbow_array[i:len(rainbow_array)]
-            mod_array.extend(rainbow_array[0:i])
-            show_array(strip,mod_array)
+        if mt_terminate:
+            mt_terminate = False
+            break
+        if mt is None:
+            break
+        try:
+            mt.join(timeout=0)
+        except:
+            child_process = True
+            break
+        if not mt.is_alive():
+            break
+        time.sleep(0.5)
+
+    def helper():
+        while True:
+            for i in range(len(rainbow_array)):
+                mod_array = rainbow_array[i:len(rainbow_array)]
+                mod_array.extend(rainbow_array[0:i])
+                show_array(strip, mod_array)
+
+    if child_process:
+        helper()
+    else:
+        mt = Process(target=helper, name="rainbow")
+        mt.start()
 
 def show_array(strip,array):
     for i in range(len(array)):
@@ -301,7 +315,7 @@ def flash(strip, color, count, interval):
 def clear(strip):
     for i in range(strip.numPixels()):
         strip.setPixelColor(i, Color(0, 0, 0))
-    strip.show();
+    strip.show()
 
 
 def fill(strip, color):
@@ -586,6 +600,8 @@ async def on_message(message):
         elif (len(param) > 1 and len(param) < 4) or len(param) > 4:
             await message.channel.send(
                 "Parameter mismatch. Command requires either three RGB values and a duration or just a duration in seconds. Ex. `timer 255 0 0 5` or `timer 5`")
+    elif command == "rainbow":
+        rainbow()
 
 
 @client.event
