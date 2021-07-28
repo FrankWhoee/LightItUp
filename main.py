@@ -4,7 +4,6 @@ import math
 import os
 import time
 from datetime import date, datetime
-
 from rpi_ws281x import *
 import random
 import discord
@@ -19,7 +18,24 @@ from discord.ext import tasks
 
 instances_of_victor = 0
 
-timers = {"late_evening": (23,30,5,5,5), "midnight":(23,59,0,0,0)}
+timers = {"late_evening": (23,00,5,5,5), "midnight":(23,30,0,0,0)}
+
+previous_state = []
+current_status = discord.Status.online
+saved_status = discord.Status.online
+
+def save_state():
+    global previous_state
+    global saved_status
+    previous_state = []
+    saved_status = current_status
+    for i in range(strip.numPixels()):
+        previous_state.append(strip.getPixelColorRGB(i))
+
+def restore_state():
+    for i in range(strip.numPixels()):
+        strip.setPixelColor(i,previous_state[i])
+    strip.show()
 
 class processNode():
     def __init__(self, process, complete: bool, prev, next, name):
@@ -139,6 +155,7 @@ def ambience():
     elif ambtype == "party":
         clear(strip)
         rainbow()
+    save_state()
     return "", 200
 
 def rainbow():
@@ -158,20 +175,7 @@ def rainbow():
     global mt
     global mt_terminate
     child_process = False
-    while True:
-        if mt_terminate:
-            mt_terminate = False
-            break
-        if mt is None:
-            break
-        try:
-            mt.join(timeout=0)
-        except:
-            child_process = True
-            break
-        if not mt.is_alive():
-            break
-        time.sleep(0.5)
+    child_process = wait_for_finish(child_process, mt)
 
     def helper():
         while True:
@@ -186,10 +190,28 @@ def rainbow():
         mt = Process(target=helper, name="rainbow")
         mt.start()
 
+
+def wait_for_finish(child_process, mt):
+    global mt_terminate
+    while True:
+        if mt_terminate:
+            mt_terminate = False
+            break
+        if mt is None:
+            break
+        try:
+            mt.join(timeout=0)
+        except:
+            child_process = True
+            break
+        if not mt.is_alive():
+            break
+        time.sleep(0.5)
+    return child_process
+
+
 def show_array(strip,array):
     for i in range(len(array)):
-        # print(i)
-        # print(array[i])
         strip.setPixelColor(i,array[i])
     strip.show()
 
@@ -205,6 +227,7 @@ def signal():
         flash(strip,Color(0,170,212),3,0.5)
     elif sigtype == "theater":
         flash(strip,Color(68,0,170),3,0.5)
+    restore_state()
     return "", 200
 
 # Extract secrets from local file.
@@ -239,25 +262,11 @@ mt_terminate = False
 ADMIN = [194857448673247235, 385297155503685632]
 
 
-
 def train(strip, length, color, wait_time_ms=50, trailing=Color(0, 0, 0)):
     global mt
     global mt_terminate
     child_process = False
-    while True:
-        if mt_terminate:
-            mt_terminate = False
-            break
-        if mt is None:
-            break
-        try:
-            mt.join(timeout=0)
-        except:
-            child_process = True
-            break
-        if not mt.is_alive():
-            break
-        time.sleep(0.5)
+    child_process = wait_for_finish(child_process,mt)
 
     def helper():
         for i in range(length):
@@ -280,20 +289,7 @@ def flash(strip, color, count, interval):
     global mt
     global mt_terminate
     child_process = False
-    while True:
-        if mt_terminate:
-            mt_terminate = False
-            break
-        if mt is None:
-            break
-        try:
-            mt.join(timeout=0)
-        except:
-            child_process = True
-            break
-        if not mt.is_alive():
-            break
-        time.sleep(0.5)
+    child_process = wait_for_finish(child_process,mt)
 
     def helper():
         for d in range(count):
@@ -316,12 +312,14 @@ def clear(strip):
     for i in range(strip.numPixels()):
         strip.setPixelColor(i, Color(0, 0, 0))
     strip.show()
+    save_state()
 
 
 def fill(strip, color):
     for i in range(strip.numPixels()):
         strip.setPixelColor(i, color)
-    strip.show();
+    strip.show()
+    save_state()
 
 # def fade(strip,color,interval):
 #     global mt
@@ -358,20 +356,7 @@ def fade_from_to(strip, color1, color2, interval):
     global mt
     global mt_terminate
     child_process = False
-    while True:
-        if mt_terminate:
-            mt_terminate = False
-            break
-        if mt is None:
-            break
-        try:
-            mt.join(timeout=0)
-        except:
-            child_process = True
-            break
-        if not mt.is_alive():
-            break
-        time.sleep(0.5)
+    child_process = wait_for_finish(child_process,mt)
 
     def helper():
         max_diff = max(tuple(np.absolute(np.subtract(color2, color1))))
@@ -398,20 +383,7 @@ def timer(strip, color, total_time):
     global mt
     global mt_terminate
     child_process = False
-    while True:
-        if mt_terminate:
-            mt_terminate = False
-            break
-        if mt is None:
-            break
-        try:
-            mt.join(timeout=0)
-        except:
-            child_process = True
-            break
-        if not mt.is_alive():
-            break
-        time.sleep(0.5)
+    child_process = wait_for_finish(child_process,mt)
 
     def helper():
         fill(strip, color)
@@ -442,20 +414,7 @@ def sunset(strip):
     global mt
     global mt_terminate
     child_process = False
-    while True:
-        if mt_terminate:
-            mt_terminate = False
-            break
-        if mt is None:
-            break
-        try:
-            mt.join(timeout=0)
-        except:
-            child_process = True
-            break
-        if not mt.is_alive():
-            break
-        time.sleep(0.5)
+    child_process = wait_for_finish(child_process,mt)
 
     def helper():
         fade_from_to(strip, (255, 69, 0), (0, 0, 0), 1)
@@ -512,6 +471,7 @@ def brightness_protection(strip):
             b = int(math.floor(b))
         strip.setPixelColor(i,Color(r,g,b))
     strip.show()
+    save_state()
     t = Timer(300, brightness_protection, args=[strip])
     t.start()
 
@@ -608,8 +568,11 @@ async def on_message(message):
 @client.event
 async def on_member_update(before, after):
     global strip
+    global current_status
+    global saved_status
     if before.id == 194857448673247235 and after.id == 194857448673247235:
-        if str(before.status) == "online" and (str(after.status) == "offline" or str(after.status) == "idle"):
+        current_status = after.status
+        if saved_status == "online" and (str(after.status) == "offline" or str(after.status) == "idle"):
             print("Turning off strip to save energy: Discord status is idle or offline.")
             clear(strip)
 
