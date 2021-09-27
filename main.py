@@ -107,6 +107,18 @@ def send_js(path):
 def index():
     return render_template("index.html")
 
+@app.route('/ambience')
+def ambience():
+    ambtype = request.args["v"]
+    if ambtype == "light":
+        fill()
+    elif ambtype == "off":
+        if mt != None:
+            mt.terminate()
+            mt_terminate = True
+        clear()
+    return "",200
+
 def wait_for_finish(child_process, mt):
     global mt_terminate
     while True:

@@ -1,8 +1,16 @@
+import time
+
 import RPi.GPIO as GPIO
 
 # Default put
 OUTPUT = {14:False, 15:False, 18: False}
 INPUT = [2]
+
+# Special pins
+IN1 = 14
+IN2 = 15
+U_TRIG = 18
+U_ECHO = 2
 
 class WrongPutType(Exception):
     pass
@@ -36,9 +44,9 @@ def put(pin: int, putmode: str):
     if putmode.lower() == "out":
         OUTPUT[pin] = False
 
-
 def cleanup(force=False):
     GPIO.cleanup()
+    GPIO.setmode(GPIO.BCM)
     if force:
         for i in range(2,28):
             GPIO.setup(i, GPIO.IN)
@@ -49,4 +57,3 @@ for i in OUTPUT:
     off(i)
 for i in INPUT:
     GPIO.setup(i, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-
