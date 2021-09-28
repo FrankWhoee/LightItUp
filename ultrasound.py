@@ -43,7 +43,7 @@ def collect_distance():
     try:
         while True:
             get_distance()
-            time.sleep(0.01)
+            time.sleep(0.001)
     except:
         GPIO.cleanup()
 
