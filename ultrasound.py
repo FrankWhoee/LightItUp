@@ -20,7 +20,7 @@ def calculate_distance(pin):
     current_distance = 17150 * (ending - starting) - 10
     if current_distance < 50:
         down += 1
-    if down > 3 and current_distance > 50:
+    if down > 2 and current_distance > 50:
         relay.toggle(relay.IN1)
         down = 0
 
