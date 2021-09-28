@@ -25,6 +25,16 @@ def off(pin: int):
     OUTPUT[pin] = False
     GPIO.output(pin, GPIO.LOW)
 
+def toggle(pin: int):
+    if pin in INPUT: raise WrongPutType
+    if OUTPUT[pin]:
+        OUTPUT[pin] = False
+        GPIO.output(pin, GPIO.LOW)
+    else:
+        OUTPUT[pin] = True
+        GPIO.output(pin, GPIO.HIGH)
+
+
 def state(pin: int):
     if pin in INPUT:
         return GPIO.input(pin)

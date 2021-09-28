@@ -15,6 +15,7 @@ from flask import Flask, render_template, Response, send_from_directory, session
 from multiprocessing import Process
 from discord.ext import tasks
 import relay
+import ultrasound
 
 instances_of_victor = 0
 
@@ -232,6 +233,8 @@ async def on_message(message):
         print(member.activity.name)
     elif command == "light":
         fill()
+    elif command == "us" or command == "dist" or command == "distance":
+        await message.channel.send(str(ultrasound.current_distance) + "cm")
 
 
 @client.event
