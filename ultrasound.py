@@ -8,7 +8,7 @@ from threading import Thread
 starting = 0
 ending = 0
 current_distance = 0
-down = False
+down = 0
 
 # relay.cleanup(True)
 
@@ -19,10 +19,10 @@ def calculate_distance(pin):
     ending = time.time()
     current_distance = 17150 * (ending - starting) - 10
     if current_distance < 50:
-        down = True
-    if down and current_distance > 60:
+        down += 1
+    if down > 5 and current_distance > 50:
         relay.toggle(relay.IN1)
-        down = False
+        down = 0
 
 
 
