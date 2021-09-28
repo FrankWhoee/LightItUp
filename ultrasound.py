@@ -30,7 +30,7 @@ def calculate_distance(pin):
             down = 0
 
 
-GPIO.add_event_detect(relay.U_ECHO, GPIO.FALLING, callback=calculate_distance, bouncetime=0)
+GPIO.add_event_detect(relay.U_ECHO, GPIO.FALLING, callback=calculate_distance, bouncetime=5)
 
 
 def get_distance():
