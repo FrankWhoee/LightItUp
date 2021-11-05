@@ -18,12 +18,12 @@ class WrongPutType(Exception):
 def on(pin: int):
     if pin in INPUT: raise WrongPutType
     OUTPUT[pin] = True
-    GPIO.output(pin, GPIO.HIGH)
+    GPIO.output(pin, GPIO.LOW)
 
 def off(pin: int):
     if pin in INPUT: raise WrongPutType
     OUTPUT[pin] = False
-    GPIO.output(pin, GPIO.LOW)
+    GPIO.output(pin, GPIO.HIGH)
 
 def toggle(pin: int):
     if pin in INPUT: raise WrongPutType

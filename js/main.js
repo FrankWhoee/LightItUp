@@ -124,6 +124,41 @@ function ambience(type) {
     });
 }
 
+function flip(relay) {
+    $.ajax({
+        type: "GET",
+        url: '/flip?v=' + relay,
+        success: function (response) {
+            Swal.fire({
+                position: 'top',
+                icon: 'success',
+                title: 'Relay set.',
+                showConfirmButton: false,
+                timer: 5000,
+                backdrop: false,
+                toast: true,
+                customClass: {
+                    border: '5px solid black'
+                }
+            })
+        },
+        error: function (response) {
+            Swal.fire({
+                position: 'top',
+                icon: 'error',
+                title: 'Something went wrong!',
+                showConfirmButton: false,
+                timer: 5000,
+                backdrop: false,
+                toast: true,
+                customClass: {
+                    border: '5px solid black'
+                }
+            })
+        }
+    });
+}
+
 function signal(type) {
     $.ajax({
         type: "GET",

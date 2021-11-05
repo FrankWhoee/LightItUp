@@ -15,7 +15,7 @@ from flask import Flask, render_template, Response, send_from_directory, session
 from multiprocessing import Process
 from discord.ext import tasks
 import relay
-import ultrasound
+# import ultrasound
 
 instances_of_victor = 0
 
@@ -118,6 +118,15 @@ def ambience():
             mt.terminate()
             mt_terminate = True
         clear()
+    return "",200
+
+@app.route('/flip')
+def ambience():
+    relay = request.args["v"]
+    if relay == "0":
+        relay.toggle(relay.IN1)
+    elif relay == "1":
+        relay.toggle(relay.IN2)
     return "",200
 
 def wait_for_finish(child_process, mt):
