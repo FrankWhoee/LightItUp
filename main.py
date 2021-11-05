@@ -122,10 +122,10 @@ def ambience():
 
 @app.route('/flip')
 def flip():
-    relay = request.args["v"]
-    if relay == "0":
+    r = request.args["v"]
+    if r == "0":
         relay.toggle(relay.IN1)
-    elif relay == "1":
+    elif r == "1":
         relay.toggle(relay.IN2)
     return "",200
 
