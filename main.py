@@ -8,6 +8,7 @@ from rpi_ws281x import *
 import random
 import discord
 import numpy as np
+import sunx
 from sunx import get_sunset_delay
 import argparse
 from threading import Timer
@@ -610,6 +611,8 @@ if __name__ == '__main__':
         print(get_time_delta(timers[t][0], timers[t][1], 0))
         Timer(get_time_delta(timers[t][0], timers[t][1], 0), daily_timer, args=[strip, timers[t]]).start()
 
+    if sunx.has_sunset():
+        fade_from_to(strip, (0, 0, 0), (125, 125, 125), 2)
 
     # flash(strip, Color(255, 69, 0), 2, 0.5)
     discord_thread = async_discord_thread()
