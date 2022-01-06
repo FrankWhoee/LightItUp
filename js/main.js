@@ -41,7 +41,7 @@ function triggerCall() {
         type: "GET",
         url: '/momalert',
         success: function (response) {
-            var mothersday = new Date("9/5/2021");
+            var mothersday = new Date("5/9/2021");
             var todaysDate = new Date();
             if (mothersday.setHours(0, 0, 0, 0) == todaysDate.setHours(0, 0, 0, 0)) {
                 toggleConfetti();
