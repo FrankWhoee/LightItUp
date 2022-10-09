@@ -3,6 +3,10 @@ import threading
 from rpi_ws281x import PixelStrip, Color
 import RPi.GPIO as GPIO
 
+"""
+File is for playing with the LED strip.
+"""
+
 # LED strip configuration:
 LED_COUNT = 150        # Number of LED pixels.
 LED_PIN = 18          # GPIO pin connected to the pixels (18 uses PWM!).
