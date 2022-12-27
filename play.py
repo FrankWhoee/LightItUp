@@ -34,7 +34,7 @@ def setColour(strip, color):
 
 def setBrightness(strip, brightness):
     """Wipe color across display a pixel at a time."""
-    c = Color(int(255 * brightness), int(255 * brightness), int(255 * brightness))
+    c = Color(int(255 * brightness), int(255 * brightness), int(200 * brightness))
     for i in range(strip.numPixels()):
         strip.setPixelColor(i, c)
     strip.show()
@@ -81,7 +81,4 @@ strip.begin()
 
 if __name__ == "__main__":
     # brightnessTester(strip)
-    # setBrightness(strip, 0.5)
-    lightUpThread = threading.Thread(target=lightUpOnTooDark, args=(strip,))
-    lightUpThread.start()
-    lightUpThread.join()
+    setBrightness(strip, 0)

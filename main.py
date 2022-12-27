@@ -2,6 +2,9 @@ import threading
 
 from rpi_ws281x import PixelStrip, Color
 import RPi.GPIO as GPIO
+from flask import Flask, Response
+import signal
+import sys
 
 # LED strip configuration:
 LED_COUNT = 150        # Number of LED pixels.
@@ -21,8 +24,6 @@ GPIO.setup(17, GPIO.IN)
 # Window Light Sensor
 GPIO.setup(27, GPIO.IN)
 
-isNight = False
-
 def setColour(strip, color):
     for i in range(strip.numPixels()):
         strip.setPixelColor(i, color)
@@ -30,33 +31,10 @@ def setColour(strip, color):
 
 def setBrightness(strip, brightness):
     """Wipe color across display a pixel at a time."""
-    c = Color(int(255 * brightness), int(255 * brightness), int(255 * brightness))
+    c = Color(int(227 * brightness), int(168 * brightness), int(87 * brightness))
     for i in range(strip.numPixels()):
         strip.setPixelColor(i, c)
     strip.show()
-
-def pixelCounter(strip):
-    i = 0
-    cancel = False
-    while not cancel:
-        strip.setPixelColor(i, Color(125, 0, 0))
-        strip.show()
-        i += 1
-        if(input() == "c"):
-            cancel = True
-    print("We have {} pixels".format(i))
-
-def brightnessTester(strip):
-    b = 0
-    cancel = False
-    while not cancel:
-        setBrightness(strip, b)
-        strip.show()
-        b += 0.01
-        print(b)
-        if(input() == "c"):
-            cancel = True
-    print("We have {} brightness".format(b))
 
 def checkRoom():
     return GPIO.input(17) == 1
@@ -64,20 +42,36 @@ def checkRoom():
 def checkWindow():
     return GPIO.input(27) == 1
 
-def lightUpOnTooDark(strip):
-    while True:
-        if checkWindow():
-            setBrightness(strip, 0.8)
-        else:
-            setBrightness(strip, 0)
 # Create NeoPixel object with appropriate configuration.
 strip = PixelStrip(LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS, LED_CHANNEL)
 # Intialize the library (must be called once before other functions).
 strip.begin()
+isLightOutside = checkWindow()
+app = Flask(__name__)
+
+def lightUpOnTooDark(strip):
+    global isLightOutside
+    while True:
+        if checkWindow() != isLightOutside:
+            isLightOutside = checkWindow()
+            if checkWindow():
+                setBrightness(strip, 0.75)
+            else:
+                setBrightness(strip, 0)
+
+@app.route('/on', methods=['PUT', 'GET'])
+def turn_on():
+    setBrightness(strip,0.75)
+    return Response(status=200)
+
+@app.route('/off', methods=['PUT', 'GET'])
+def turn_off():
+    setBrightness(strip,0)
+    return Response(status=200)
+
 
 if __name__ == "__main__":
-    # brightnessTester(strip)
-    # setBrightness(strip, 0.5)
     lightUpThread = threading.Thread(target=lightUpOnTooDark, args=(strip,))
+    threading.Thread(target=app.run).start()
     lightUpThread.start()
     lightUpThread.join()
